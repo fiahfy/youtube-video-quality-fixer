@@ -1,15 +1,15 @@
 # YouTube Quality Fixer
 [![Build Status](https://travis-ci.com/fiahfy/youtube-quality-fixer.svg?branch=master)](https://travis-ci.com/fiahfy/youtube-quality-fixer)
 
-> Chrome Extension for Fix Video Quality for YouTube Videos.
+> Chrome Extension for Fix Highest Video Quality on YouTube.
 
 
 ## Features
-* Append buttons for seeking backward/forward 5 seconds.
+* Fix highest available video quality at first.
 
 
 ## Screenshots
-![screenshot](./build/screenshots/screenshot.png?raw=true)
+![screenshot](.github/img/screenshot.png)
 
 
 ## Installation
