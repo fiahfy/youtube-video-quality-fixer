@@ -3,40 +3,33 @@ import className from './constants/class-name'
 
 let timer = null
 let oldSrc = null
+let callback = null
 
-const waitVideoSrcChanged = () => {
+const waitVideoLoaded = () => {
   return new Promise((resolve) => {
+    const video = document.querySelector('video.html5-main-video')
+    video && video.removeEventListener('loadedmetadata', callback)
+
     clearInterval(timer)
 
     const timeout = Date.now() + 3000
     timer = setInterval(() => {
       const video = document.querySelector('video.html5-main-video')
-      if (video && video.currentSrc && video.currentSrc !== oldSrc) {
+      if (video && video.currentSrc !== oldSrc) {
         clearInterval(timer)
-        oldSrc = video.currentSrc
-        resolve(true)
+        oldSrc = video.currentSrc || null
+        if (video.readyState > 0) {
+          return resolve(true)
+        }
+        callback = () => {
+          resolve(true)
+        }
+        video.addEventListener('loadedmetadata', callback)
       } else if (Date.now() > timeout) {
         clearInterval(timer)
         resolve(false)
       }
     }, 100)
-  })
-}
-
-const waitVideoLoaded = () => {
-  return new Promise((resolve) => {
-    const video = document.querySelector('video.html5-main-video')
-    if (!video) {
-      return resolve(false)
-    }
-    if (video.readyState > 0) {
-      return resolve(true)
-    }
-    const callback = () => {
-      video.removeEventListener('loadedmetadata', callback)
-      resolve(true)
-    }
-    video.addEventListener('loadedmetadata', callback)
   })
 }
 
@@ -94,10 +87,6 @@ const fixQuality = async () => {
 
 const setup = async () => {
   try {
-    const changed = await waitVideoSrcChanged()
-    if (!changed) {
-      return
-    }
     const loaded = await waitVideoLoaded()
     if (!loaded) {
       return
