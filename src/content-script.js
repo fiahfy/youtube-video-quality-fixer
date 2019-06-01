@@ -4,29 +4,46 @@ import className from './constants/class-name'
 let timer = null
 let oldSrc = null
 
-const waitVideoReady = () => {
-  clearInterval(timer)
+const waitVideoSrcChanged = () => {
+  return new Promise((resolve) => {
+    clearInterval(timer)
 
-  return new Promise((resolve, reject) => {
-    const timeout = Date.now() + 10000
+    const timeout = Date.now() + 3000
     timer = setInterval(() => {
       const video = document.querySelector('video.html5-main-video')
-      if (video && video.currentSrc !== oldSrc) {
+      if (video && video.currentSrc && video.currentSrc !== oldSrc) {
         clearInterval(timer)
         oldSrc = video.currentSrc
-        resolve(video.readyState !== 0)
+        resolve(true)
       } else if (Date.now() > timeout) {
         clearInterval(timer)
-        reject('timeout')
+        resolve(false)
       }
-    })
+    }, 100)
+  })
+}
+
+const waitVideoLoaded = () => {
+  return new Promise((resolve) => {
+    const video = document.querySelector('video.html5-main-video')
+    if (!video) {
+      return resolve(false)
+    }
+    if (video.readyState > 0) {
+      return resolve(true)
+    }
+    const callback = () => {
+      video.removeEventListener('loadedmetadata', callback)
+      resolve(true)
+    }
+    video.addEventListener('loadedmetadata', callback)
   })
 }
 
 const waitSubmenuShown = (text) => {
-  clearInterval(timer)
+  return new Promise((resolve) => {
+    clearInterval(timer)
 
-  return new Promise((resolve, reject) => {
     const timeout = Date.now() + 3000
     timer = setInterval(() => {
       const subMenu = document.querySelector(
@@ -37,9 +54,9 @@ const waitSubmenuShown = (text) => {
         resolve(true)
       } else if (Date.now() > timeout) {
         clearInterval(timer)
-        reject('timeout')
+        resolve(false)
       }
-    })
+    }, 100)
   })
 }
 
@@ -59,7 +76,10 @@ const fixQuality = async () => {
     }
     menu.click()
 
-    await waitSubmenuShown(text)
+    const shown = await waitSubmenuShown(text)
+    if (!shown) {
+      throw new Error('Timeout')
+    }
 
     const submenu = document.querySelector(
       '.ytp-settings-menu .ytp-menuitem:first-child'
@@ -74,13 +94,12 @@ const fixQuality = async () => {
 
 const setup = async () => {
   try {
-    const video = document.querySelector('video.html5-main-video')
-    video && video.removeEventListener('loadeddata', fixQuality)
-
-    const ready = await waitVideoReady()
-    if (!ready) {
-      const video = document.querySelector('video.html5-main-video')
-      video && video.addEventListener('loadeddata', fixQuality)
+    const changed = await waitVideoSrcChanged()
+    if (!changed) {
+      return
+    }
+    const loaded = await waitVideoLoaded()
+    if (!loaded) {
       return
     }
 
