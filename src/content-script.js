@@ -7,17 +7,17 @@ let oldSrc = null
 const waitVideoReady = () => {
   clearInterval(timer)
 
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const timeout = Date.now() + 10000
     timer = setInterval(() => {
       const video = document.querySelector('video.html5-main-video')
-      if (video && video.currentSrc !== oldSrc && video.readyState === 4) {
+      if (video && video.currentSrc !== oldSrc) {
         clearInterval(timer)
         oldSrc = video.currentSrc
-        resolve(true)
+        resolve(video.readyState !== 0)
       } else if (Date.now() > timeout) {
         clearInterval(timer)
-        resolve(false)
+        reject('timeout')
       }
     })
   })
@@ -26,7 +26,7 @@ const waitVideoReady = () => {
 const waitSubmenuShown = (text) => {
   clearInterval(timer)
 
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const timeout = Date.now() + 3000
     timer = setInterval(() => {
       const subMenu = document.querySelector(
@@ -37,18 +37,16 @@ const waitSubmenuShown = (text) => {
         resolve(true)
       } else if (Date.now() > timeout) {
         clearInterval(timer)
-        resolve(false)
+        reject('timeout')
       }
     })
   })
 }
 
-const fixVideoQuality = async () => {
-  await waitVideoReady()
-
-  document.body.classList.add(className.fixing)
-
+const fixQuality = async () => {
   try {
+    document.body.classList.add(className.fixing)
+
     const button = document.querySelector('.ytp-settings-button')
     button.click()
 
@@ -61,10 +59,7 @@ const fixVideoQuality = async () => {
     }
     menu.click()
 
-    const shown = await waitSubmenuShown(text)
-    if (!shown) {
-      throw new Error('Sub menu not shown')
-    }
+    await waitSubmenuShown(text)
 
     const submenu = document.querySelector(
       '.ytp-settings-menu .ytp-menuitem:first-child'
@@ -77,6 +72,22 @@ const fixVideoQuality = async () => {
   }
 }
 
+const setup = async () => {
+  try {
+    const video = document.querySelector('video.html5-main-video')
+    video && video.removeEventListener('loadeddata', fixQuality)
+
+    const ready = await waitVideoReady()
+    if (!ready) {
+      const video = document.querySelector('video.html5-main-video')
+      video && video.addEventListener('loadeddata', fixQuality)
+      return
+    }
+
+    fixQuality()
+  } catch (e) {} // eslint-disable-line no-empty
+}
+
 browser.runtime.onMessage.addListener(async (message) => {
   const { id, type } = message
   if (type === 'SIGN_RELOAD' && process.env.NODE_ENV !== 'production') {
@@ -85,12 +96,12 @@ browser.runtime.onMessage.addListener(async (message) => {
   }
   switch (id) {
     case 'urlChanged':
-      await fixVideoQuality()
+      await setup()
       break
   }
 })
 
 document.addEventListener('DOMContentLoaded', async () => {
   await browser.runtime.sendMessage({ id: 'contentLoaded' })
-  await fixVideoQuality()
+  await setup()
 })
