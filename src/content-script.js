@@ -33,21 +33,22 @@ const waitVideoLoaded = () => {
   })
 }
 
-const waitSubmenuShown = (text) => {
+const getHighestQualityMenuItem = () => {
   return new Promise((resolve) => {
     clearInterval(timer)
 
     const timeout = Date.now() + 3000
     timer = setInterval(() => {
-      const subMenu = document.querySelector(
-        '.ytp-settings-menu .ytp-menuitem:last-child'
+      const submenu = document.querySelector(
+        '.ytp-settings-menu .ytp-menuitem:first-child'
       )
-      if (text !== subMenu.textContent) {
+      const text = submenu.textContent
+      if (text.match(/\d+p/)) {
         clearInterval(timer)
-        resolve(true)
+        resolve(submenu)
       } else if (Date.now() > timeout) {
         clearInterval(timer)
-        resolve(false)
+        resolve(null)
       }
     }, 100)
   })
@@ -63,21 +64,13 @@ const fixQuality = async () => {
     const menu = document.querySelector(
       '.ytp-settings-menu .ytp-menuitem:last-child'
     )
-    const text = menu.textContent
-    if (!text.match(/\d+p/)) {
+    if (!menu.textContent.match(/\d+p/)) {
       throw new Error('Invalid menu item')
     }
     menu.click()
 
-    const shown = await waitSubmenuShown(text)
-    if (!shown) {
-      throw new Error('Timeout')
-    }
-
-    const submenu = document.querySelector(
-      '.ytp-settings-menu .ytp-menuitem:first-child'
-    )
-    submenu.click()
+    const submenu = await getHighestQualityMenuItem()
+    submenu && submenu.click()
   } catch (e) {
     //
   } finally {
