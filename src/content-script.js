@@ -90,11 +90,7 @@ const setup = async () => {
 }
 
 browser.runtime.onMessage.addListener(async (message) => {
-  const { id, type } = message
-  if (type === 'SIGN_RELOAD' && process.env.NODE_ENV !== 'production') {
-    parent.location.reload()
-    return
-  }
+  const { id } = message
   switch (id) {
     case 'urlChanged':
       await setup()
