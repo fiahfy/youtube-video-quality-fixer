@@ -23,7 +23,7 @@ export default {
         exclude: /node_modules/
       },
       {
-        test: /\.(jpg|gif|png|svg)$/,
+        test: /\.(jpg|gif|png)$/,
         loader: 'file-loader',
         options: {
           name: 'assets/[name].[ext]'
