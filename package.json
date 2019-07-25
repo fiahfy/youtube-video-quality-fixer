@@ -25,8 +25,8 @@
     "husky": "^3.0.1",
     "prettier": "^1.14.3",
     "webpack": "^4.0.1",
-    "webpack-chrome-extension-reloader": "^1.2.0",
-    "webpack-cli": "^3.0.2"
+    "webpack-cli": "^3.0.2",
+    "webpack-extension-reloader": "^1.1.0"
   },
   "keywords": [
     "chrome extension",
