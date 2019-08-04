@@ -2,32 +2,23 @@ import browser from 'webextension-polyfill'
 import className from './constants/class-name'
 
 let timer = null
-let oldSrc = null
-let callback = null
+let interval = 100
+let timeout = 3000
 
-const waitVideoLoaded = () => {
+const getQualityMenuItem = () => {
   return new Promise((resolve) => {
-    const video = document.querySelector('video.html5-main-video')
-    video && video.removeEventListener('loadedmetadata', callback)
-
-    clearInterval(timer)
-
-    const timeout = Date.now() + 3000
-    timer = setInterval(() => {
-      const video = document.querySelector('video.html5-main-video')
-      if (video && video.currentSrc !== oldSrc) {
+    const expire = Date.now() + 3000
+    const timer = setInterval(() => {
+      const menu = document.querySelector(
+        '.ytp-settings-menu .ytp-menuitem:last-child'
+      )
+      const text = menu.textContent
+      if (text.match(/\d+p/)) {
         clearInterval(timer)
-        oldSrc = video.currentSrc || null
-        if (video.readyState > 0) {
-          return resolve(true)
-        }
-        callback = () => {
-          resolve(true)
-        }
-        video.addEventListener('loadedmetadata', callback)
-      } else if (Date.now() > timeout) {
+        resolve(menu)
+      } else if (Date.now() > expire) {
         clearInterval(timer)
-        resolve(false)
+        resolve(null)
       }
     }, 100)
   })
@@ -35,18 +26,16 @@ const waitVideoLoaded = () => {
 
 const getHighestQualityMenuItem = () => {
   return new Promise((resolve) => {
-    clearInterval(timer)
-
-    const timeout = Date.now() + 3000
-    timer = setInterval(() => {
-      const submenu = document.querySelector(
+    const expire = Date.now() + 3000
+    const timer = setInterval(() => {
+      const menu = document.querySelector(
         '.ytp-settings-menu .ytp-menuitem:first-child'
       )
-      const text = submenu.textContent
+      const text = menu.textContent
       if (text.match(/\d+p/)) {
         clearInterval(timer)
-        resolve(submenu)
-      } else if (Date.now() > timeout) {
+        resolve(menu)
+      } else if (Date.now() > expire) {
         clearInterval(timer)
         resolve(null)
       }
@@ -59,34 +48,69 @@ const fixQuality = async () => {
     document.body.classList.add(className.fixing)
 
     const button = document.querySelector('.ytp-settings-button')
+    if (!button) {
+      throw new Error('Settings button not found')
+    }
     button.click()
 
-    const menu = document.querySelector(
-      '.ytp-settings-menu .ytp-menuitem:last-child'
-    )
-    if (!menu.textContent.match(/\d+p/)) {
-      throw new Error('Invalid menu item')
+    const menu = await getQualityMenuItem()
+    if (!menu) {
+      throw new Error('Menu not found')
     }
     menu.click()
 
     const submenu = await getHighestQualityMenuItem()
-    submenu && submenu.click()
+    if (!submenu) {
+      throw new Error('Submenu not found')
+    }
+    submenu.click()
+    return true
   } catch (e) {
-    //
+    return false
   } finally {
     document.body.classList.remove(className.fixing)
   }
 }
 
-const setup = async () => {
-  try {
-    const loaded = await waitVideoLoaded()
-    if (!loaded) {
-      return
+const fixQualityLoop = async () => {
+  return new Promise((resolve) => {
+    const video = document.querySelector('video.html5-main-video')
+    if (video) {
+      video.removeEventListener('loadedmetadata', fixQualityLoop)
     }
 
-    fixQuality()
-  } catch (e) {} // eslint-disable-line no-empty
+    if (timer) {
+      clearTimeout(timer)
+    }
+
+    const callback = async () => {
+      if (Date.now() > expire) {
+        clearTimeout(timer)
+        resolve()
+        return
+      }
+      const result = await fixQuality()
+      if (result) {
+        clearTimeout(timer)
+        resolve()
+        return
+      }
+      timer = setTimeout(callback)
+    }
+
+    const expire = Date.now() + timeout
+    timer = setTimeout(callback, interval)
+  })
+}
+
+const setup = async () => {
+  await fixQualityLoop()
+
+  const video = document.querySelector('video.html5-main-video')
+  if (!video || video.readyState > 0) {
+    return
+  }
+  video.addEventListener('loadedmetadata', fixQualityLoop)
 }
 
 browser.runtime.onMessage.addListener(async (message) => {

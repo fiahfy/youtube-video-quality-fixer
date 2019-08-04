@@ -1,11 +1,11 @@
 {
   "name": "youtube-quality-fixer",
   "description": "Fix Highest Video Quality on YouTube",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "author": {
     "name": "fiahfy",
     "email": "d.fiahfy@gmail.com",
-    "url": "http://fiahfy.blogspot.com/"
+    "url": "https://fiahfy.github.io/"
   },
   "dependencies": {
     "webextension-polyfill": "^0.4.0"
@@ -25,8 +25,8 @@
     "husky": "^3.0.1",
     "prettier": "^1.14.3",
     "webpack": "^4.0.1",
-    "webpack-chrome-extension-reloader": "^1.2.0",
-    "webpack-cli": "^3.0.2"
+    "webpack-cli": "^3.0.2",
+    "webpack-extension-reloader": "^1.1.0"
   },
   "keywords": [
     "chrome extension",
@@ -42,7 +42,7 @@
   "scripts": {
     "build": "webpack",
     "dev": "webpack -w --config webpack.config.dev.babel.js",
-    "lint": "eslint -f codeframe --ext .js,.vue --ignore-path .gitignore .",
+    "lint": "eslint -f codeframe --ignore-path .gitignore .",
     "package": "NODE_ENV=production npm run build && mkdir -p dist && zip -r dist/archive.zip app",
     "test": "npm run lint"
   }
