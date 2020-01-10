@@ -1,8 +1,8 @@
-import browser from 'webextension-polyfill'
+import { browser } from 'webextension-polyfill-ts'
 import stylesheet from './constants/stylesheet'
 import './assets/icon.png'
 
-const injectCSS = async (tabId) => {
+const injectCSS = async (tabId: number): Promise<void> => {
   await browser.tabs.insertCSS(tabId, { code: stylesheet })
 }
 
@@ -11,7 +11,7 @@ browser.runtime.onMessage.addListener(async (message, sender) => {
   const { tab } = sender
   switch (id) {
     case 'contentLoaded':
-      return await injectCSS(tab.id)
+      return tab?.id && (await injectCSS(tab.id))
   }
 })
 

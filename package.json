@@ -1,32 +1,30 @@
 {
-  "name": "youtube-quality-fixer",
-  "description": "Fix Highest Video Quality on YouTube",
-  "version": "0.0.6",
+  "name": "youtube-video-quality-fixer",
+  "description": "Chrome Extension for Fixing Highest Video Quality on YouTube",
+  "version": "0.0.7",
   "author": {
     "name": "fiahfy",
     "email": "d.fiahfy@gmail.com",
     "url": "https://fiahfy.github.io/"
   },
   "dependencies": {
-    "webextension-polyfill": "^0.4.0"
+    "webextension-polyfill-ts": "^0.11.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.0.0",
-    "@babel/plugin-transform-runtime": "^7.0.0",
-    "@babel/preset-env": "^7.0.0",
-    "@babel/register": "^7.0.0",
-    "@babel/runtime": "^7.0.0",
-    "babel-loader": "^8.0.2",
-    "copy-webpack-plugin": "^5.0.0",
-    "eslint": "^6.0.1",
-    "eslint-config-prettier": "^6.0.0",
-    "eslint-plugin-prettier": "^3.0.0",
-    "file-loader": "^4.0.0",
-    "husky": "^3.0.1",
-    "prettier": "^1.14.3",
-    "webpack": "^4.0.1",
-    "webpack-cli": "^3.0.2",
-    "webpack-extension-reloader": "^1.1.0"
+    "@typescript-eslint/eslint-plugin": "^2.15.0",
+    "@typescript-eslint/parser": "^2.15.0",
+    "copy-webpack-plugin": "^5.1.1",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.9.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "file-loader": "^5.0.2",
+    "husky": "^4.0.6",
+    "prettier": "^1.19.1",
+    "ts-loader": "^6.2.1",
+    "typescript": "^3.7.4",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10",
+    "webpack-extension-reloader": "^1.1.4"
   },
   "keywords": [
     "chrome extension",
@@ -34,16 +32,16 @@
     "youtube"
   ],
   "private": true,
-  "productName": "YouTube Quality Fixer",
+  "productName": "Video Quality Fixer for YouTube",
   "repository": {
     "type": "git",
-    "url": "https://github.com/fiahfy/youtube-quality-fixer"
+    "url": "https://github.com/fiahfy/youtube-video-quality-fixer"
   },
   "scripts": {
     "build": "webpack",
-    "dev": "webpack -w --config webpack.config.dev.babel.js",
-    "lint": "eslint -f codeframe --ignore-path .gitignore .",
-    "package": "NODE_ENV=production npm run build && mkdir -p dist && zip -r dist/archive.zip app",
+    "dev": "webpack -w --config webpack.config.dev.js",
+    "lint": "eslint -f codeframe --ext .ts --ignore-path .gitignore src",
+    "package": "npm run build -- -p && mkdir -p dist && zip -r dist/archive.zip app",
     "test": "npm run lint"
   }
 }
