@@ -1,10 +1,7 @@
-import webpack from 'webpack'
-import CopyWebpackPlugin from 'copy-webpack-plugin'
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
-const mode = process.env.NODE_ENV || 'development'
-
-export default {
-  mode,
+module.exports = {
+  mode: 'development',
   target: 'web',
   context: `${__dirname}/src`,
   entry: {
@@ -13,17 +10,17 @@ export default {
   },
   output: {
     path: `${__dirname}/app/`,
-    filename: '[name].js'
+    filename: '[name].js',
+    publicPath: '../'
   },
   module: {
     rules: [
       {
-        test: /\.js$/,
-        loader: 'babel-loader',
-        exclude: /node_modules/
+        test: /\.ts$/,
+        loader: 'ts-loader'
       },
       {
-        test: /\.(jpg|gif|png)$/,
+        test: /\.(jpg|gif|png|woff|woff2|eot|ttf)$/,
         loader: 'file-loader',
         options: {
           name: 'assets/[name].[ext]'
@@ -32,11 +29,6 @@ export default {
     ]
   },
   plugins: [
-    new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: JSON.stringify(mode)
-      }
-    }),
     new CopyWebpackPlugin([
       {
         from: 'manifest.json',
@@ -54,7 +46,7 @@ export default {
     ])
   ],
   resolve: {
-    extensions: ['.js', '.json'],
+    extensions: ['.js', '.ts'],
     alias: {
       '~~': `${__dirname}/`,
       '~': `${__dirname}/src/`

@@ -1,18 +1,18 @@
-import browser from 'webextension-polyfill'
+import { browser } from 'webextension-polyfill-ts'
 import className from './constants/class-name'
 
-let timer = null
-let interval = 100
-let timeout = 3000
+let timer = -1
+const interval = 100
+const timeout = 3000
 
-const getQualityMenuItem = () => {
+const getQualityMenuItem = (): Promise<HTMLElement | null> => {
   return new Promise((resolve) => {
     const expire = Date.now() + 3000
     const timer = setInterval(() => {
       const menu = document.querySelector(
         '.ytp-settings-menu .ytp-menuitem:last-child'
-      )
-      const text = menu.textContent
+      ) as HTMLElement | null
+      const text = menu?.textContent ?? ''
       if (text.match(/\d+p/)) {
         clearInterval(timer)
         resolve(menu)
@@ -24,14 +24,14 @@ const getQualityMenuItem = () => {
   })
 }
 
-const getHighestQualityMenuItem = () => {
+const getHighestQualityMenuItem = (): Promise<HTMLElement | null> => {
   return new Promise((resolve) => {
     const expire = Date.now() + 3000
     const timer = setInterval(() => {
       const menu = document.querySelector(
         '.ytp-settings-menu .ytp-menuitem:first-child'
-      )
-      const text = menu.textContent
+      ) as HTMLElement | null
+      const text = menu?.textContent ?? ''
       if (text.match(/\d+p/)) {
         clearInterval(timer)
         resolve(menu)
@@ -43,11 +43,13 @@ const getHighestQualityMenuItem = () => {
   })
 }
 
-const fixQuality = async () => {
+const fixQuality = async (): Promise<boolean> => {
   try {
     document.body.classList.add(className.fixing)
 
-    const button = document.querySelector('.ytp-settings-button')
+    const button = document.querySelector(
+      '.ytp-settings-button'
+    ) as HTMLElement | null
     if (!button) {
       throw new Error('Settings button not found')
     }
@@ -72,7 +74,7 @@ const fixQuality = async () => {
   }
 }
 
-const fixQualityLoop = async () => {
+const fixQualityLoop = async (): Promise<void> => {
   return new Promise((resolve) => {
     const video = document.querySelector('video.html5-main-video')
     if (video) {
@@ -83,7 +85,8 @@ const fixQualityLoop = async () => {
       clearTimeout(timer)
     }
 
-    const callback = async () => {
+    const expire = Date.now() + timeout
+    const callback = async (): Promise<void> => {
       if (Date.now() > expire) {
         clearTimeout(timer)
         resolve()
@@ -97,16 +100,16 @@ const fixQualityLoop = async () => {
       }
       timer = setTimeout(callback)
     }
-
-    const expire = Date.now() + timeout
     timer = setTimeout(callback, interval)
   })
 }
 
-const setup = async () => {
+const setup = async (): Promise<void> => {
   await fixQualityLoop()
 
-  const video = document.querySelector('video.html5-main-video')
+  const video = document.querySelector(
+    'video.html5-main-video'
+  ) as HTMLVideoElement | null
   if (!video || video.readyState > 0) {
     return
   }
