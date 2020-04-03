@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "icons": {
-    "128": "assets/icon.png"
+    "128": "icon.png"
   },
   "background": {
     "scripts": ["background.js"]
@@ -15,6 +15,7 @@
     }
   ],
   "permissions": [
+    "storage",
     "tabs",
     "https://www.youtube.com/*"
   ],

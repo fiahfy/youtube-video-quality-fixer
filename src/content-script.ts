@@ -1,23 +1,25 @@
 import { browser } from 'webextension-polyfill-ts'
-import className from './constants/class-name'
 
-let timer = -1
+const className = 'yvqf-video-quality-fixing'
 const interval = 100
 const timeout = 3000
+let timer = -1
+
+export const isVideoUrl = () => new URL(location.href).pathname === '/watch'
 
 const getQualityMenuItem = (): Promise<HTMLElement | null> => {
   return new Promise((resolve) => {
-    const expire = Date.now() + 3000
-    const timer = setInterval(() => {
+    const expire = Date.now() + timeout
+    const timer = window.setInterval(() => {
       const menu = document.querySelector(
         '.ytp-settings-menu .ytp-menuitem:last-child'
       ) as HTMLElement | null
       const text = menu?.textContent ?? ''
       if (text.match(/\d+p/)) {
-        clearInterval(timer)
+        window.clearInterval(timer)
         resolve(menu)
       } else if (Date.now() > expire) {
-        clearInterval(timer)
+        window.clearInterval(timer)
         resolve(null)
       }
     }, 100)
@@ -26,17 +28,17 @@ const getQualityMenuItem = (): Promise<HTMLElement | null> => {
 
 const getHighestQualityMenuItem = (): Promise<HTMLElement | null> => {
   return new Promise((resolve) => {
-    const expire = Date.now() + 3000
-    const timer = setInterval(() => {
+    const expire = Date.now() + timeout
+    const timer = window.setInterval(() => {
       const menu = document.querySelector(
         '.ytp-settings-menu .ytp-menuitem:first-child'
       ) as HTMLElement | null
       const text = menu?.textContent ?? ''
       if (text.match(/\d+p/)) {
-        clearInterval(timer)
+        window.clearInterval(timer)
         resolve(menu)
       } else if (Date.now() > expire) {
-        clearInterval(timer)
+        window.clearInterval(timer)
         resolve(null)
       }
     }, 100)
@@ -45,7 +47,7 @@ const getHighestQualityMenuItem = (): Promise<HTMLElement | null> => {
 
 const fixQuality = async (): Promise<boolean> => {
   try {
-    document.body.classList.add(className.fixing)
+    document.body.classList.add(className)
 
     const button = document.querySelector(
       '.ytp-settings-button'
@@ -70,7 +72,7 @@ const fixQuality = async (): Promise<boolean> => {
   } catch (e) {
     return false
   } finally {
-    document.body.classList.remove(className.fixing)
+    document.body.classList.remove(className)
   }
 }
 
@@ -82,29 +84,33 @@ const fixQualityLoop = async (): Promise<void> => {
     }
 
     if (timer) {
-      clearTimeout(timer)
+      window.clearTimeout(timer)
     }
 
     const expire = Date.now() + timeout
     const callback = async (): Promise<void> => {
       if (Date.now() > expire) {
-        clearTimeout(timer)
+        window.clearTimeout(timer)
         resolve()
         return
       }
       const result = await fixQuality()
       if (result) {
-        clearTimeout(timer)
+        window.clearTimeout(timer)
         resolve()
         return
       }
-      timer = setTimeout(callback)
+      timer = window.setTimeout(callback)
     }
-    timer = setTimeout(callback, interval)
+    timer = window.setTimeout(callback, interval)
   })
 }
 
 const setup = async (): Promise<void> => {
+  if (!isVideoUrl()) {
+    return
+  }
+
   await fixQualityLoop()
 
   const video = document.querySelector(
@@ -120,12 +126,11 @@ browser.runtime.onMessage.addListener(async (message) => {
   const { id } = message
   switch (id) {
     case 'urlChanged':
-      await setup()
-      break
+      return await setup()
   }
 })
 
 document.addEventListener('DOMContentLoaded', async () => {
-  await browser.runtime.sendMessage({ id: 'contentLoaded' })
+  const data = await browser.runtime.sendMessage({ id: 'contentLoaded' })
   await setup()
 })

@@ -1,4 +1,7 @@
 const CopyWebpackPlugin = require('copy-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const { VueLoaderPlugin } = require('vue-loader')
+const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin')
 
 module.exports = {
   mode: 'development',
@@ -6,30 +9,56 @@ module.exports = {
   context: `${__dirname}/src`,
   entry: {
     background: './background',
-    'content-script': './content-script'
+    'content-script': './content-script',
+    popup: './popup'
   },
   output: {
     path: `${__dirname}/app/`,
     filename: '[name].js',
-    publicPath: '../'
+    publicPath: './'
   },
   module: {
     rules: [
       {
         test: /\.ts$/,
-        loader: 'ts-loader'
+        loader: 'ts-loader',
+        options: {
+          appendTsSuffixTo: [/\.vue$/]
+        }
       },
       {
-        test: /\.(jpg|gif|png|woff|woff2|eot|ttf)$/,
+        test: /\.vue$/,
+        loader: 'vue-loader'
+      },
+      {
+        test: /\.s(c|a)ss$/,
+        use: [
+          'vue-style-loader',
+          'css-loader',
+          {
+            loader: 'sass-loader',
+            options: {
+              implementation: require('sass')
+            }
+          }
+        ]
+      },
+      {
+        test: /\.(css|jpg|gif|png|woff|woff2|eot|ttf)$/,
         loader: 'file-loader',
         options: {
           name: 'assets/[name].[ext]'
         }
+      },
+      {
+        test: /\.svg$/,
+        loader: 'svg-inline-loader'
       }
     ]
   },
   plugins: [
     new CopyWebpackPlugin([
+      'icon.png',
       {
         from: 'manifest.json',
         transform: function(content) {
@@ -43,13 +72,21 @@ module.exports = {
           )
         }
       }
-    ])
+    ]),
+    new HtmlWebpackPlugin({
+      template: './popup.html',
+      filename: './popup.html',
+      chunks: ['popup']
+    }),
+    new VueLoaderPlugin(),
+    new VuetifyLoaderPlugin()
   ],
   resolve: {
-    extensions: ['.js', '.ts'],
+    extensions: ['.js', '.ts', '.vue'],
     alias: {
       '~~': `${__dirname}/`,
-      '~': `${__dirname}/src/`
+      '~': `${__dirname}/src/`,
+      vue$: 'vue/dist/vue.esm.js'
     }
   }
 }
