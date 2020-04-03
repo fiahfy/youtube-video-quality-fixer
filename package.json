@@ -1,7 +1,7 @@
 {
   "name": "youtube-video-quality-fixer",
   "description": "Chrome Extension for Fixing Highest Video Quality on YouTube",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "author": {
     "name": "fiahfy",
     "email": "d.fiahfy@gmail.com",
