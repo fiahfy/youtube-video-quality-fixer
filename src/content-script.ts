@@ -32,9 +32,9 @@ const getQualityMenuItems = (): Promise<HTMLElement[]> => {
   return new Promise((resolve) => {
     const expire = Date.now() + timeout
     const timer = window.setInterval(() => {
-      const menus = Array.from(document.querySelectorAll(
-        '.ytp-settings-menu .ytp-menuitem'
-      )) as HTMLElement[]
+      const menus = Array.from(
+        document.querySelectorAll('.ytp-settings-menu .ytp-menuitem')
+      ) as HTMLElement[]
       if (menus.length) {
         window.clearInterval(timer)
         resolve(menus)
@@ -73,7 +73,9 @@ const fixQuality = async (): Promise<boolean> => {
       throw new Error('Submenu not found')
     }
 
-    const qualities = [144, 240, 360, 480, 720, 1080, 1440, 2160, 4320].filter((quality) => quality <= settings.quality)
+    const qualities = [144, 240, 360, 480, 720, 1080, 1440, 2160, 4320].filter(
+      (quality) => quality <= settings.quality
+    )
 
     const submenu = menus.find((menu) => {
       const quality = Number((menu?.textContent ?? '').split('p')[0])

@@ -5,8 +5,8 @@
         <div class="d-flex">
           <div class="mr-3 text-no-wrap">Highest quality:</div>
           <select
-            style="-webkit-appearance: menulist; border-style: solid;"
             v-model="quality"
+            style="-webkit-appearance: menulist; border-style: solid;"
           >
             <option
               v-for="option of qualities"
