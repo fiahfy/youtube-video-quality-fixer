@@ -1,13 +1,25 @@
 import { browser } from 'webextension-polyfill-ts'
+import { readyStore } from '~/store'
 import inject from '~/assets/inject.css'
+
+const getSettings = async () => {
+  const store = await readyStore()
+  return JSON.parse(JSON.stringify(store.state.settings))
+}
 
 const contentLoaded = async (tabId: number) => {
   await browser.tabs.insertCSS(tabId, { file: inject })
+  await browser.pageAction.show(tabId)
+
+  const settings = await getSettings()
+
+  return { settings }
 }
 
-browser.tabs.onUpdated.addListener((tabId, changeInfo) => {
+browser.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
   if (changeInfo.url) {
-    browser.tabs.sendMessage(tabId, { id: 'urlChanged' })
+    const settings = await getSettings()
+    browser.tabs.sendMessage(tabId, { id: 'urlChanged', data: { settings } })
   }
 })
 

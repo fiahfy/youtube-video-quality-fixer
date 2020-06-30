@@ -1,11 +1,13 @@
 import { browser } from 'webextension-polyfill-ts'
+import { Settings } from '~/models'
 
 const className = 'yvqf-video-quality-fixing'
 const interval = 100
 const timeout = 3000
 let timer = -1
+let settings: Settings
 
-export const isVideoUrl = () => new URL(location.href).pathname === '/watch'
+const isVideoUrl = () => new URL(location.href).pathname === '/watch'
 
 const getQualityMenuItem = (): Promise<HTMLElement | null> => {
   return new Promise((resolve) => {
@@ -26,20 +28,19 @@ const getQualityMenuItem = (): Promise<HTMLElement | null> => {
   })
 }
 
-const getHighestQualityMenuItem = (): Promise<HTMLElement | null> => {
+const getQualityMenuItems = (): Promise<HTMLElement[]> => {
   return new Promise((resolve) => {
     const expire = Date.now() + timeout
     const timer = window.setInterval(() => {
-      const menu = document.querySelector(
-        '.ytp-settings-menu .ytp-menuitem:first-child'
-      ) as HTMLElement | null
-      const text = menu?.textContent ?? ''
-      if (text.match(/\d+p/)) {
+      const menus = Array.from(document.querySelectorAll(
+        '.ytp-settings-menu .ytp-menuitem'
+      )) as HTMLElement[]
+      if (menus.length) {
         window.clearInterval(timer)
-        resolve(menu)
+        resolve(menus)
       } else if (Date.now() > expire) {
         window.clearInterval(timer)
-        resolve(null)
+        resolve([])
       }
     }, 100)
   })
@@ -47,6 +48,10 @@ const getHighestQualityMenuItem = (): Promise<HTMLElement | null> => {
 
 const fixQuality = async (): Promise<boolean> => {
   try {
+    if (settings.quality === 'auto') {
+      return true
+    }
+
     document.body.classList.add(className)
 
     const button = document.querySelector(
@@ -63,9 +68,19 @@ const fixQuality = async (): Promise<boolean> => {
     }
     menu.click()
 
-    const submenu = await getHighestQualityMenuItem()
-    if (!submenu) {
+    const menus = await getQualityMenuItems()
+    if (!menus.length) {
       throw new Error('Submenu not found')
+    }
+
+    const qualities = [144, 240, 360, 480, 720, 1080, 1440, 2160, 4320].filter((quality) => quality <= settings.quality)
+
+    const submenu = menus.find((menu) => {
+      const quality = Number((menu?.textContent ?? '').split('p')[0])
+      return qualities.includes(quality)
+    })
+    if (!submenu) {
+      throw new Error('Submenu not match')
     }
     submenu.click()
     return true
@@ -123,14 +138,16 @@ const setup = async (): Promise<void> => {
 }
 
 browser.runtime.onMessage.addListener(async (message) => {
-  const { id } = message
+  const { id, data } = message
   switch (id) {
     case 'urlChanged':
+      settings = data.settings
       return await setup()
   }
 })
 
 document.addEventListener('DOMContentLoaded', async () => {
-  await browser.runtime.sendMessage({ id: 'contentLoaded' })
+  const data = await browser.runtime.sendMessage({ id: 'contentLoaded' })
+  settings = data.settings
   await setup()
 })

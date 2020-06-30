@@ -7,6 +7,7 @@
 ## Features
 
 - Fix highest available video quality at first.
+- Set highest video quality.
 
 ## Screenshots
 
