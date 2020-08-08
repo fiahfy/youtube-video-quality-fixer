@@ -1,6 +1,5 @@
 import { browser } from 'webextension-polyfill-ts'
 import { readyStore } from '~/store'
-import inject from '~/assets/inject.css'
 
 const getSettings = async () => {
   const store = await readyStore()
@@ -8,7 +7,6 @@ const getSettings = async () => {
 }
 
 const contentLoaded = async (tabId: number) => {
-  await browser.tabs.insertCSS(tabId, { file: inject })
   await browser.pageAction.show(tabId)
 
   const settings = await getSettings()

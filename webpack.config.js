@@ -64,6 +64,7 @@ module.exports = {
             )
           },
         },
+        'content-script.css',
       ],
     }),
     new HtmlWebpackPlugin({
