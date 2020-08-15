@@ -123,7 +123,7 @@ const fixQualityLoop = async (): Promise<void> => {
   })
 }
 
-const setup = async (): Promise<void> => {
+const init = async (): Promise<void> => {
   if (!isVideoUrl()) {
     return
   }
@@ -144,12 +144,12 @@ browser.runtime.onMessage.addListener(async (message) => {
   switch (id) {
     case 'urlChanged':
       settings = data.settings
-      return await setup()
+      return await init()
   }
 })
 
 document.addEventListener('DOMContentLoaded', async () => {
   const data = await browser.runtime.sendMessage({ id: 'contentLoaded' })
   settings = data.settings
-  await setup()
+  await init()
 })
