@@ -6,7 +6,7 @@
           <div class="mr-3 text-no-wrap">Highest quality:</div>
           <select
             v-model="quality"
-            style="-webkit-appearance: menulist; border-style: solid;"
+            style="-webkit-appearance: menulist; border-style: solid"
           >
             <option
               v-for="option of qualities"
