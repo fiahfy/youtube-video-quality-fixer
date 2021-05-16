@@ -8,5 +8,5 @@ body.yvqf-video-quality-fixing
   > .ytp-right-controls
   > .ytp-settings-button[aria-expanded='true']
   svg {
-    transform: none !important;
+  transform: none !important;
 }
