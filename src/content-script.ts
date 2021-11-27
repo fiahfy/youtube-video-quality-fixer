@@ -1,4 +1,4 @@
-import { browser } from 'webextension-polyfill-ts'
+import browser from 'webextension-polyfill'
 import { Settings } from '~/models'
 
 const className = 'yvqf-video-quality-fixing'
