@@ -6,7 +6,7 @@ export default class SettingsModule extends VuexModule {
   quality: Quality = 1080
 
   @Mutation
-  setQuality({ quality }: { quality: Quality }): void {
+  setQuality({ quality }: { quality: Quality }) {
     this.quality = quality
   }
 }

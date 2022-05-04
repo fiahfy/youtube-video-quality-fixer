@@ -8,8 +8,25 @@ let settings: Settings
 
 const isVideoUrl = () => new URL(location.href).pathname === '/watch'
 
-const getQualityMenuItem = (): Promise<HTMLElement | null> => {
-  return new Promise((resolve) => {
+const querySelectorAsync = (
+  selector: string,
+  interval = 100,
+  timeout = 1000
+) => {
+  return new Promise<Element | null>((resolve) => {
+    const expireTime = Date.now() + timeout
+    const timer = window.setInterval(() => {
+      const e = document.querySelector(selector)
+      if (e || Date.now() > expireTime) {
+        clearInterval(timer)
+        resolve(e)
+      }
+    }, interval)
+  })
+}
+
+const getQualityMenuItem = () => {
+  return new Promise<HTMLElement | null>((resolve) => {
     const expire = Date.now() + timeout
     const timer = window.setInterval(() => {
       const menu = document.querySelector(
@@ -27,8 +44,8 @@ const getQualityMenuItem = (): Promise<HTMLElement | null> => {
   })
 }
 
-const getQualityMenuItems = (): Promise<HTMLElement[]> => {
-  return new Promise((resolve) => {
+const getQualityMenuItems = () => {
+  return new Promise<HTMLElement[]>((resolve) => {
     const expire = Date.now() + timeout
     const timer = window.setInterval(() => {
       const menus = Array.from(
@@ -45,7 +62,7 @@ const getQualityMenuItems = (): Promise<HTMLElement[]> => {
   })
 }
 
-const fixQuality = async (): Promise<boolean> => {
+const fixQuality = async () => {
   try {
     if (settings.quality === 'auto') {
       return true
@@ -92,13 +109,13 @@ const fixQuality = async (): Promise<boolean> => {
   }
 }
 
-const fixQualityLoop = async (): Promise<void> => {
-  return new Promise((resolve) => {
+const fixQualityLoop = async () => {
+  return new Promise<boolean>((resolve) => {
     const video = document.querySelector(
       'ytd-watch-flexy video.html5-main-video'
     )
     if (video) {
-      video.removeEventListener('loadedmetadata', fixQualityLoop)
+      video.removeEventListener('play', fixQualityLoop)
     }
 
     if (timer) {
@@ -106,17 +123,15 @@ const fixQualityLoop = async (): Promise<void> => {
     }
 
     const expire = Date.now() + timeout
-    const callback = async (): Promise<void> => {
+    const callback = async () => {
       if (Date.now() > expire) {
         window.clearTimeout(timer)
-        resolve()
-        return
+        return resolve(false)
       }
       const result = await fixQuality()
       if (result) {
         window.clearTimeout(timer)
-        resolve()
-        return
+        return resolve(true)
       }
       timer = window.setTimeout(callback)
     }
@@ -124,20 +139,20 @@ const fixQualityLoop = async (): Promise<void> => {
   })
 }
 
-const init = async (): Promise<void> => {
+const init = async () => {
   if (!isVideoUrl()) {
     return
   }
 
-  await fixQualityLoop()
-
-  const video = document.querySelector(
-    'ytd-watch-flexy video.html5-main-video'
-  ) as HTMLVideoElement | null
-  if (!video || video.readyState > 0) {
+  const fixed = await fixQualityLoop()
+  if (fixed) {
     return
   }
-  video.addEventListener('loadedmetadata', fixQualityLoop)
+
+  const video = (await querySelectorAsync(
+    'ytd-watch-flexy video.html5-main-video'
+  )) as HTMLVideoElement | null
+  video && video.addEventListener('play', fixQualityLoop)
 }
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
