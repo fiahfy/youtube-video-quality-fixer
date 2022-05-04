@@ -1,4 +1,3 @@
-import browser from 'webextension-polyfill'
 import { readyStore } from '~/store'
 
 const getSettings = async () => {
@@ -6,26 +5,27 @@ const getSettings = async () => {
   return JSON.parse(JSON.stringify(store.state.settings))
 }
 
-const contentLoaded = async (tabId: number) => {
-  await browser.pageAction.show(tabId)
-
+const contentLoaded = async () => {
   const settings = await getSettings()
 
   return { settings }
 }
 
-browser.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
   if (changeInfo.url) {
-    const settings = await getSettings()
-    browser.tabs.sendMessage(tabId, { id: 'urlChanged', data: { settings } })
+    await chrome.tabs.sendMessage(tabId, { type: 'url-changed' })
   }
 })
 
-browser.runtime.onMessage.addListener(async (message, sender) => {
-  const { id } = message
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  const { type } = message
   const { tab } = sender
-  switch (id) {
-    case 'contentLoaded':
-      return tab?.id && (await contentLoaded(tab.id))
+  switch (type) {
+    case 'content-loaded':
+      if (tab?.id) {
+        contentLoaded().then((data) => sendResponse(data))
+        return true
+      }
+      return
   }
 })

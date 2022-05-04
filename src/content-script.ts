@@ -1,4 +1,3 @@
-import browser from 'webextension-polyfill'
 import { Settings } from '~/models'
 
 const className = 'yvqf-video-quality-fixing'
@@ -141,17 +140,17 @@ const init = async (): Promise<void> => {
   video.addEventListener('loadedmetadata', fixQualityLoop)
 }
 
-browser.runtime.onMessage.addListener(async (message) => {
-  const { id, data } = message
-  switch (id) {
-    case 'urlChanged':
-      settings = data.settings
-      return await init()
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  const { type } = message
+  switch (type) {
+    case 'url-changed':
+      init().then(() => sendResponse())
+      return true
   }
 })
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const data = await browser.runtime.sendMessage({ id: 'contentLoaded' })
+  const data = await chrome.runtime.sendMessage({ type: 'content-loaded' })
   settings = data.settings
   await init()
 })
