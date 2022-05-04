@@ -156,11 +156,14 @@ const init = async () => {
 }
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  const { type } = message
+  const { type, data } = message
   switch (type) {
     case 'url-changed':
       init().then(() => sendResponse())
       return true
+    case 'settings-changed':
+      settings = data.settings
+      return sendResponse()
   }
 })
 
