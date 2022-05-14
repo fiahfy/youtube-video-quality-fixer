@@ -1,12 +1,17 @@
-import { Module, VuexModule, Mutation } from 'vuex-module-decorators'
-import { Quality } from '~/models'
+import { Module } from 'vuex'
+import { Settings } from '~/models'
+import { State as RootState } from '~/store'
 
-@Module({ name: 'settings' })
-export default class SettingsModule extends VuexModule {
-  quality: Quality = 1080
+export type State = Settings
 
-  @Mutation
-  setQuality({ quality }: { quality: Quality }) {
-    this.quality = quality
-  }
+export const module: Module<State, RootState> = {
+  namespaced: true,
+  state: () => ({
+    quality: 1080,
+  }),
+  mutations: {
+    setQuality(state, { quality }: { quality: State['quality'] }) {
+      state.quality = quality
+    },
+  },
 }
