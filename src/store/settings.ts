@@ -1,17 +1,30 @@
-import { Module } from 'vuex'
+import { PayloadAction, createSelector, createSlice } from '@reduxjs/toolkit'
 import { Settings } from '~/models'
-import { State as RootState } from '~/store'
+import { AppState } from '~/store'
 
-export type State = Settings
+type State = Settings
 
-export const module: Module<State, RootState> = {
-  namespaced: true,
-  state: () => ({
-    quality: 1080,
-  }),
-  mutations: {
-    setQuality(state, { quality }: { quality: State['quality'] }) {
-      state.quality = quality
+export const initialState: State = {
+  quality: 1080,
+}
+
+export const settingsSlice = createSlice({
+  name: 'settings',
+  initialState,
+  reducers: {
+    setQuality(state, action: PayloadAction<State['quality']>) {
+      return { ...state, quality: action.payload }
     },
   },
-}
+})
+
+export const { setQuality } = settingsSlice.actions
+
+export default settingsSlice.reducer
+
+export const selectSettings = (state: AppState) => state.settings
+
+export const selectQuality = createSelector(
+  selectSettings,
+  (settings) => settings.quality
+)
