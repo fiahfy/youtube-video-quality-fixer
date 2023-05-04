@@ -18,7 +18,7 @@ const qualityOptions = [
   { value: 4320, text: '4320p60 (8K)' },
 ]
 
-const InnerApp = () => {
+const App = () => {
   const quality = useAppSelector(selectQuality)
   const dispatch = useAppDispatch()
 
@@ -47,7 +47,7 @@ const InnerApp = () => {
   )
 }
 
-const App = () => {
+const Popup = () => {
   return (
     <StoreProvider>
       <CssBaseline />
@@ -56,9 +56,9 @@ const App = () => {
           html: { overflowY: 'hidden', width: 250 },
         }}
       />
-      <InnerApp />
+      <App />
     </StoreProvider>
   )
 }
 
-export default App
+export default Popup

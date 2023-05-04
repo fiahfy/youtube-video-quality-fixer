@@ -1,4 +1,5 @@
 import { Settings } from '~/models'
+import './content-script.css'
 
 const className = 'yvqf-video-quality-fixing'
 const interval = 100
@@ -64,7 +65,8 @@ const getQualityMenuItems = () => {
 
 const fixQuality = async () => {
   try {
-    if (settings.quality === 'auto') {
+    const quality = settings.quality
+    if (quality === 'auto') {
       return true
     }
 
@@ -90,7 +92,7 @@ const fixQuality = async () => {
     }
 
     const qualities = [144, 240, 360, 480, 720, 1080, 1440, 2160, 4320].filter(
-      (quality) => quality <= settings.quality
+      (q) => q <= quality
     )
 
     const submenu = menus.find((menu) => {
@@ -167,8 +169,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   }
 })
 
-document.addEventListener('DOMContentLoaded', async () => {
-  const data = await chrome.runtime.sendMessage({ type: 'content-loaded' })
+chrome.runtime.sendMessage({ type: 'content-loaded' }).then(async (data) => {
   settings = data.settings
   await init()
 })
