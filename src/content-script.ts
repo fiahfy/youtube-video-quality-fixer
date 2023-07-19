@@ -12,7 +12,7 @@ const isVideoUrl = () => new URL(location.href).pathname === '/watch'
 const querySelectorAsync = (
   selector: string,
   interval = 100,
-  timeout = 1000
+  timeout = 1000,
 ) => {
   return new Promise<Element | null>((resolve) => {
     const expireTime = Date.now() + timeout
@@ -31,7 +31,7 @@ const getQualityMenuItem = () => {
     const expire = Date.now() + timeout
     const timer = window.setInterval(() => {
       const menu = document.querySelector(
-        '.ytp-settings-menu .ytp-menuitem:last-child'
+        '.ytp-settings-menu .ytp-menuitem:last-child',
       ) as HTMLElement | null
       const text = menu?.textContent ?? ''
       if (text.match(/\d+p/)) {
@@ -50,7 +50,7 @@ const getQualityMenuItems = () => {
     const expire = Date.now() + timeout
     const timer = window.setInterval(() => {
       const menus = Array.from(
-        document.querySelectorAll('.ytp-settings-menu .ytp-menuitem')
+        document.querySelectorAll('.ytp-settings-menu .ytp-menuitem'),
       ) as HTMLElement[]
       if (menus.length) {
         window.clearInterval(timer)
@@ -73,7 +73,7 @@ const fixQuality = async () => {
     document.body.classList.add(className)
 
     const button = document.querySelector(
-      '.ytp-settings-button'
+      '.ytp-settings-button',
     ) as HTMLElement | null
     if (!button) {
       throw new Error('Settings button not found')
@@ -92,11 +92,15 @@ const fixQuality = async () => {
     }
 
     const qualities = [144, 240, 360, 480, 720, 1080, 1440, 2160, 4320].filter(
-      (q) => q <= quality
+      (q) => q <= quality,
     )
 
     const submenu = menus.find((menu) => {
-      const quality = Number((menu?.textContent ?? '').split('p')[0])
+      const text = menu?.textContent ?? ''
+      if (text.includes('Premium')) {
+        return false
+      }
+      const quality = Number(text.split('p')[0])
       return qualities.includes(quality)
     })
     if (!submenu) {
@@ -114,7 +118,7 @@ const fixQuality = async () => {
 const fixQualityLoop = async () => {
   return new Promise<boolean>((resolve) => {
     const video = document.querySelector(
-      'ytd-watch-flexy video.html5-main-video'
+      'ytd-watch-flexy video.html5-main-video',
     )
     if (video) {
       video.removeEventListener('play', fixQualityLoop)
@@ -152,7 +156,7 @@ const init = async () => {
   }
 
   const video = (await querySelectorAsync(
-    'ytd-watch-flexy video.html5-main-video'
+    'ytd-watch-flexy video.html5-main-video',
   )) as HTMLVideoElement | null
   video && video.addEventListener('play', fixQualityLoop)
 }

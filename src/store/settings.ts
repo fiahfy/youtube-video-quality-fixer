@@ -26,5 +26,5 @@ export const selectSettings = (state: AppState) => state.settings
 
 export const selectQuality = createSelector(
   selectSettings,
-  (settings) => settings.quality
+  (settings) => settings.quality,
 )
