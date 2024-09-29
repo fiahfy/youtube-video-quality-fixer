@@ -1,4 +1,4 @@
-import { Settings } from '~/models'
+import type { Settings } from '~/models'
 import './content-script.css'
 
 const className = 'yvqf-video-quality-fixing'
@@ -158,7 +158,7 @@ const init = async () => {
   const video = (await querySelectorAsync(
     'ytd-watch-flexy video.html5-main-video',
   )) as HTMLVideoElement | null
-  video && video.addEventListener('play', fixQualityLoop)
+  video?.addEventListener('play', fixQualityLoop)
 }
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {

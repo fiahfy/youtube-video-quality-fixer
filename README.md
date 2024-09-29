@@ -1,6 +1,6 @@
 # Video Quality Fixer for YouTube
 
-![badge](https://github.com/fiahfy/youtube-video-quality-fixer/workflows/Create%20Release/badge.svg)
+[![Create Release](https://github.com/fiahfy/youtube-video-quality-fixer/actions/workflows/create-release.yml/badge.svg)](https://github.com/fiahfy/youtube-video-quality-fixer/actions/workflows/create-release.yml)
 
 > Chrome Extension for Fixing Highest Video Quality on YouTube.
 

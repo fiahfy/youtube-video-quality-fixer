@@ -6,7 +6,7 @@ body.yvqf-video-quality-fixing
   > .ytp-chrome-bottom
   > .ytp-chrome-controls
   > .ytp-right-controls
-  > .ytp-settings-button[aria-expanded='true']
+  > .ytp-settings-button[aria-expanded="true"]
   svg {
   transform: none !important;
 }
