@@ -1,7 +1,7 @@
 import { Box, CssBaseline, GlobalStyles, Typography } from '@mui/material'
 import type { ChangeEvent } from 'react'
-import { StoreProvider } from '~/contexts/StoreContext'
 import type { Settings } from '~/models'
+import StoreProvider from '~/providers/StoreProvider'
 import { useAppDispatch, useAppSelector } from '~/store'
 import { selectQuality, setQuality } from '~/store/settings'
 
