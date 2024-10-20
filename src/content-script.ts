@@ -65,7 +65,7 @@ const getQualityMenuItems = () => {
 
 const fixQuality = async () => {
   try {
-    const quality = settings.quality
+    const { quality, shouldUseEnhancedBitrate } = settings
     if (quality === 'auto') {
       return true
     }
@@ -97,7 +97,7 @@ const fixQuality = async () => {
 
     const submenu = menus.find((menu) => {
       const text = menu?.textContent ?? ''
-      if (text.includes('Premium')) {
+      if (text.includes('Premium') && !shouldUseEnhancedBitrate) {
         return false
       }
       const quality = Number(text.split('p')[0])

@@ -10,6 +10,7 @@ type State = Settings
 
 export const initialState: State = {
   quality: 1080,
+  shouldUseEnhancedBitrate: false,
 }
 
 export const settingsSlice = createSlice({
@@ -19,10 +20,19 @@ export const settingsSlice = createSlice({
     setQuality(state, action: PayloadAction<State['quality']>) {
       return { ...state, quality: action.payload }
     },
+    setShouldUseEnhancedBitrate(
+      state,
+      action: PayloadAction<State['shouldUseEnhancedBitrate']>,
+    ) {
+      return {
+        ...state,
+        shouldUseEnhancedBitrate: action.payload,
+      }
+    },
   },
 })
 
-export const { setQuality } = settingsSlice.actions
+export const { setQuality, setShouldUseEnhancedBitrate } = settingsSlice.actions
 
 export default settingsSlice.reducer
 
@@ -31,4 +41,9 @@ export const selectSettings = (state: AppState) => state.settings
 export const selectQuality = createSelector(
   selectSettings,
   (settings) => settings.quality,
+)
+
+export const selectShouldUseEnhancedBitrate = createSelector(
+  selectSettings,
+  (settings) => settings.shouldUseEnhancedBitrate,
 )
