@@ -108,7 +108,7 @@ const fixQuality = async () => {
     }
     submenu.click()
     return true
-  } catch (e) {
+  } catch {
     return false
   } finally {
     document.body.classList.remove(className)

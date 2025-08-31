@@ -5,7 +5,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material'
-import type { ChangeEvent } from 'react'
+import { type ChangeEvent, useId } from 'react'
 import type { Settings } from '~/models'
 import StoreProvider from '~/providers/StoreProvider'
 import { useAppDispatch, useAppSelector } from '~/store'
@@ -37,6 +37,8 @@ const App = () => {
   const dispatch = useAppDispatch()
 
   const theme = useTheme()
+
+  const id = useId()
 
   const handleChangeQuality = (e: ChangeEvent<HTMLSelectElement>) => {
     const value = e.currentTarget.value as Settings['quality']
@@ -73,12 +75,12 @@ const App = () => {
       <Box sx={{ display: 'flex', gap: 0.5 }}>
         <input
           checked={shouldUseEnhancedBitrate}
-          id="enhancedBitrate"
+          id={id}
           onChange={handleChangeShouldUseEnhancedBitrate}
           type="checkbox"
         />
         <label
-          htmlFor="enhancedBitrate"
+          htmlFor={id}
           style={{
             ...theme.typography.caption,
           }}

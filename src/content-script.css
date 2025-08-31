@@ -1,4 +1,5 @@
 body.yvqf-video-quality-fixing .html5-video-player > .ytp-settings-menu {
+  /* biome-ignore lint/complexity/noImportantStyles: false positive */
   display: none !important;
 }
 body.yvqf-video-quality-fixing
@@ -8,5 +9,6 @@ body.yvqf-video-quality-fixing
   > .ytp-right-controls
   > .ytp-settings-button[aria-expanded="true"]
   svg {
+  /* biome-ignore lint/complexity/noImportantStyles: false positive */
   transform: none !important;
 }
