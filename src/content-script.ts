@@ -1,5 +1,5 @@
 import type { Settings } from '~/models'
-import './content-script.css'
+import '~/content-script.css'
 
 const className = 'yvqf-video-quality-fixing'
 const interval = 100
