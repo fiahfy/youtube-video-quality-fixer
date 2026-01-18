@@ -1,7 +1,7 @@
 {
   "name": "youtube-video-quality-fixer",
   "description": "Chrome extension that fixes the video quality to the highest available on YouTube.",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "dependencies": {
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.1",
