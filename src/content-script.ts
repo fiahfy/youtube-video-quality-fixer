@@ -7,7 +7,12 @@ const timeout = 3000
 let timer = -1
 let settings: Settings
 
-const isVideoUrl = () => new URL(location.href).pathname === '/watch'
+const isVideoUrl = () => {
+  const pathname = new URL(location.href).pathname
+  return ['^/watch', '^/live/.*', '^/@.*/live'].some((p) =>
+    new RegExp(p).test(pathname),
+  )
+}
 
 const querySelectorAsync = (
   selector: string,
