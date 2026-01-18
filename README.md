@@ -6,8 +6,7 @@
 
 ## Features
 
-- Fix highest available video quality at first.
-- Set highest video quality.
+- Automatically sets YouTube videos to the highest available quality.
 
 ## Screenshots
 
